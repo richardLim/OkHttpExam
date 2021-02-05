@@ -7,11 +7,16 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,21 +50,14 @@ public class MainActivity extends AppCompatActivity {
                     .url(strUrl)
                     .build();
                 Response response = client.newCall(request).execute();
-//                Log.d(TAG, "doInBackground: " + response.body().string() );
+                Gson gson = new Gson();
 
-                JSONArray jsonArray = new JSONArray((response.body().string()));
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    String country = jsonObject.getString("country");
-                    String weather = jsonObject.getString("weather");
-                    String temperature = jsonObject.getString("temperature");
+                Type listType = new TypeToken<ArrayList<Weather>>() {}.getType();
+                weatherList = gson.fromJson(response.body().string(), listType);
 
-                    Weather w = new Weather(country, weather, temperature);
-                    weatherList.add(w);
-                }
                 Log.d(TAG, "doInBackground: " + weatherList.toString());
 
-            } catch (IOException | JSONException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             return result;
